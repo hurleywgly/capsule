@@ -45,11 +45,14 @@ Assess source material and auto-select tier:
 |--------|-------|----------|------|
 | Topic count | 1-2 focused | 3-5 related | 6+ or cross-domain |
 | Artifact types | No skills/code | Patterns, learnings | Skills, schemas, infrastructure |
+| Transfer type | Knowledge/context dump | Session handoff, meeting prep | Skill replication, infrastructure |
 | Action needed | "Read and understand" | "Integrate these ideas" | "Replicate and build" |
 
 **Decision tree:**
-1. Includes skill definitions, code, schemas, or infrastructure changes? -> **Deep**
+1. Includes skill definitions, schemas, or infrastructure changes that need to be **installed** in the receiving system? -> **Deep**
+1b. Includes code or configs that **illustrate a point** but don't need installation? -> **Standard** with code inline
 2. Includes 3+ distinct learnings, patterns, or strategic shifts? -> **Standard**
+2b. Is a session handoff, meeting prep, or context fork? -> **Standard** (needs Integration Plan for receiver to pick up where sender left off)
 3. Otherwise -> **Quick**
 
 Announce the detected tier and rationale. Let the user override if they disagree.
@@ -83,6 +86,8 @@ Behavior varies by tier. Load lenses from `/lenses/` as specified.
 
 **Lens activation**: For each lens in the sequence, read the lens file from `/lenses/[name].md` and apply its perspective to the assembled content. Each lens reviews and enriches the output of the previous lens.
 
+**Missing lenses**: If `/lenses/[name].md` doesn't exist (e.g., receiving system lacks lens files), skip that lens activation, proceed with default perspective, and note in the output which lenses were unavailable.
+
 **Source compression**: When source material is verbose relative to the target tier, compress before assembling:
 - Strip ceremony (headers, boilerplate, repeated context the receiver won't need)
 - Preserve specifics (exact commands, file paths, config values, code snippets)
@@ -101,7 +106,12 @@ Scan all assembled content before writing:
 | Internal URLs | Remove or describe what was linked |
 | Proprietary metrics | Strip specific values, keep directional insight |
 
-**Same-owner exception**: If both sending and receiving systems belong to Ryan, offer to skip personal sanitization. Company/proprietary data is still stripped.
+**Same-owner exception**: If both sending and receiving systems belong to Ryan:
+- Skip personal sanitization (preserve teammate names, relationship context)
+- Session handoff capsules default sanitization to off entirely
+- Company/proprietary data is still stripped regardless
+
+**Capsule-in-capsule rule**: If source material includes a previously created capsule whose Sanitization Notes say "Skipped (same-owner)," re-run full sanitization on that material. Prevents an unsanitized capsule from being pulled into a future capsule shared externally.
 
 ### Phase 5: Verification
 
@@ -111,10 +121,13 @@ Self-check before writing to disk. Evaluate each criterion and report results:
 2. **Completeness**: For skills, is there enough to replicate without follow-up questions? Flag gaps.
 3. **Assumptions**: Are implicit assumptions made explicit? (e.g., "receiving system has Claude Code", "requires curl + jq")
 4. **Proportionality**: Does depth match tier? Flag bloated Quick capsules or thin Deep capsules.
+5. **Receivability**: Does this capsule work if the receiver has never seen the source system? Flag any section that assumes intimate knowledge of the sender's setup.
 
 Present verification results to the user. User approves, requests adjustments, or overrides.
 
 ### Phase 6: Output
+
+Ensure the output directory exists (create `~/ryos/packages/` if missing).
 
 Write the capsule to `~/ryos/packages/[slug]-capsule.md`.
 
@@ -143,6 +156,7 @@ Read an existing capsule and execute its integration plan.
 - Read the capsule at the given path
 - Identify tier and sections from the canonical schema
 - Validate structure (warn if non-standard format)
+- **Legacy detection**: If file uses `.FLOPPY.md` naming or lacks `**Tier:**` metadata, treat as a legacy floppy. Present as context briefing, optionally offer to upgrade to canonical capsule schema. Never attempt to execute a nonexistent Integration Plan.
 
 **Step 2: Briefing**
 - Present the Dispatch Summary and Integration Plan to the user
@@ -160,6 +174,7 @@ Read an existing capsule and execute its integration plan.
   - Explain what it will do
   - Execute (create files, install skills, update configs)
   - Confirm success before moving to the next step
+  - Before any file write, check if the target path already exists. If yes, show diff and require explicit user confirmation before overwriting. (Step 5 does this for skills; this extends the same protection to all files.)
 - If a step fails, pause and ask the user how to proceed
 
 **Step 5: Skill Installation** (Deep capsules only)
@@ -191,6 +206,7 @@ Read an existing capsule and execute its integration plan.
 ## Canonical Capsule Schema
 
 All capsules follow this structure. Sections are included or omitted based on tier.
+Omitted sections are dropped entirely, not left blank.
 
 ```markdown
 # [NAME].CAPSULE.md
@@ -227,8 +243,8 @@ Per skill: purpose, invocation, then one of:
 
 ## 5. Integration Plan                    [STANDARD+]
 Numbered steps. Prerequisites listed upfront.
-Each step: what to do, where, and how to verify.
-THIS IS THE SECTION THAT SOLVES THE ACTIONABILITY GAP.
+Each step follows: **Step N: [Action]** / Where: [path] / Do: [instruction] / Verify: [confirmation] / Rollback: [if fails]. Mark each step as `[auto]` (agent executes) or `[manual]` (human required).
+This section is why capsules transfer capability, not just information.
 
 ## 6. Signals                             [STANDARD+]
 Suggestions for the receiving system to evaluate.
@@ -240,7 +256,7 @@ what context is missing and whether to request it.
 
 ---
 
-*End of dispatch. Eject capsule when ready.*
+*Dispatch complete.*
 ```
 
 ---
