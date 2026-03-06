@@ -73,6 +73,24 @@ Orthogonal to tiers — describes **receiver intent**, not output volume.
 | **Conversation Thread** | Continue in-flight work | Decisions, open questions, temporal context |
 | **Living Reference** | Stay current on evolving state | Structure for incremental updates |
 
+## Archetypes
+
+Orthogonal to both tiers and categories — describes the **temporal transfer pattern**, how the knowledge behaves after delivery.
+
+Ordered by shelf-life (shortest to longest):
+
+| Archetype | Transfer Pattern | Optimize For |
+|-----------|-----------------|--------------|
+| **Perishable** | Use once, discard | Aggressive compression, task-specific context only |
+| **Handoff** | Baton pass between sessions | Decisions, open threads, where-we-left-off state |
+| **Seed** | Intentionally incomplete, receiver expands | The question/direction, not the answer |
+| **Steroid** | Rapid large-scale absorption | Action items and critical context for immediate execution |
+| **Delta** | Incremental sync over time | Changes only — assumes base context exists |
+| **Trainer** | Permanent learning | Conceptual relationships, the "why," principles |
+| **Dormant** | Pre-loaded, inactive until triggered | Trigger conditions and full payload |
+
+**Audience-targeting** is a modifier, not an archetype. Any capsule can carry attributes defining who sees it, what's redacted, and what level of detail is appropriate. This connects to the sanitization layer (same-owner vs. cross-team vs. public).
+
 ## Capsule Schema
 
 Every capsule follows a canonical structure. Sections are included or omitted based on tier — never left blank.
@@ -82,7 +100,7 @@ Every capsule follows a canonical structure. Sections are included or omitted ba
 
 > One-line tagline
 
-Metadata (version, date, from, to, purpose, tier)
+Metadata (version, date, from, to, purpose, tier, archetype)
 
 1. Dispatch Summary              [all tiers]
 2. Core Content                  [all tiers]
