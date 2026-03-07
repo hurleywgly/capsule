@@ -1,12 +1,12 @@
 ---
 name: capsule
-description: Create and load Claude Capsules — self-contained markdown artifacts for agent-to-agent knowledge transfer with automatic complexity detection and mandatory actionability
+description: Create and load Capsules — self-contained markdown artifacts for agent-to-agent knowledge transfer with automatic complexity detection and mandatory actionability
 disable-model-invocation: true
 ---
 
 # /capsule
 
-Create or load Claude Capsules for system-to-system knowledge transfer. Capsules are self-contained markdown artifacts that package knowledge, patterns, skills, and integration plans into a portable format any receiving agent can act on.
+Create or load Capsules for system-to-system knowledge transfer. Capsules are self-contained markdown artifacts that package knowledge, patterns, skills, and integration plans into a portable format any receiving agent can act on.
 
 ## Purpose
 

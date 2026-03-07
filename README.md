@@ -1,6 +1,6 @@
 # /capsule
 
-Portable, actionable knowledge transfer between Claude Code systems.
+Portable, actionable knowledge transfer between AI coding agents.
 
 ## What It Does
 
