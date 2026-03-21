@@ -4,6 +4,10 @@ description: Create and load Capsules — self-contained markdown artifacts for 
 disable-model-invocation: true
 ---
 
+<!-- PORTABILITY: This skill is published to hurleywgly/capsule and must remain workspace-agnostic.
+No hardcoded absolute paths. No personal names in logic. Use workspace-relative conventions —
+the agent resolves paths from its own CLAUDE.md or workspace root at runtime. -->
+
 # /capsule
 
 Create or load Capsules for system-to-system knowledge transfer. Capsules are self-contained markdown artifacts that package knowledge, patterns, skills, and integration plans into a portable format any receiving agent can act on.
@@ -91,6 +95,7 @@ Behavior varies by tier. Load lenses from `/lenses/` as specified.
   - Complete SKILL.md inline (if <200 lines)
   - Public URL + install instructions
   - Full specification sufficient to recreate from scratch
+- For Full System capsules: after extracting components, explicitly map how they connect at runtime — dependency chains, composition patterns (parallel vs sequential), workflow sequences, and which components are portable vs platform-specific. Capture these in the System Relationships section.
 - Lens: Synthesizer -> Architect -> Guardian -> Sculptor
 - Apply `/projector` principles: discovery, fidelity assessment, knowledge file curation
 
@@ -116,7 +121,7 @@ Scan all assembled content before writing:
 | Internal URLs | Remove or describe what was linked |
 | Proprietary metrics | Strip specific values, keep directional insight |
 
-**Same-owner exception**: If both sending and receiving systems belong to Ryan:
+**Same-owner exception**: If both sending and receiving systems belong to the same owner:
 - Skip personal sanitization (preserve teammate names, relationship context)
 - Session handoff capsules default sanitization to off entirely
 - Company/proprietary data is still stripped regardless
@@ -133,18 +138,22 @@ Self-check before writing to disk. Evaluate each criterion and report results:
 4. **Proportionality**: Does depth match tier? Flag bloated Quick capsules or thin Deep capsules.
 5. **Receivability**: Does this capsule work if the receiver has never seen the source system? Flag any section that assumes intimate knowledge of the sender's setup.
 6. **Fidelity**: For each Verbatim Payload, verify content exactly matches source. Compute hash. Flag any payload that appears modified.
+7. **Relationship Fidelity**: For Full System capsules, verify that cross-component relationships, composition patterns, and portability boundaries are explicitly captured — not scattered within component descriptions.
 
 Present verification results to the user. User approves, requests adjustments, or overrides.
 
 ### Phase 6: Output
 
-Ensure the output directory exists (create `~/ryos/packages/` if missing).
+**Output directory resolution** (in order):
+1. If the workspace's CLAUDE.md or project config specifies a packages/output directory, use that
+2. If a `packages/` directory exists at the workspace root, use it (create if missing)
+3. Otherwise, write to the current working directory
 
-Write the capsule to `~/ryos/packages/[slug]-capsule.md`.
+Write the capsule to `{output_dir}/[slug]-capsule.md`.
 
 Report:
 ```
-Capsule written to ~/ryos/packages/[slug]-capsule.md
+Capsule written to {output_dir}/[slug]-capsule.md
 
 Tier: [Quick | Standard | Deep]
 Category: [Full System | Knowledge Pillar | Conversation Thread | Living Reference]
@@ -259,6 +268,15 @@ Per skill: purpose, invocation, then one of:
 Numbered steps. Prerequisites listed upfront.
 Each step follows: **Step N: [Action]** / Where: [path] / Do: [instruction] / Verify: [confirmation] / Rollback: [if fails]. Mark each step as `[auto]` (agent executes) or `[manual]` (human required).
 This section is why capsules transfer capability, not just information.
+
+## 5b. System Relationships               [DEEP only, when source is Full System]
+How components connect at runtime. Dependency declarations, composition
+patterns, workflow sequences, and portability boundaries.
+
+Format per relationship:
+- **[Component A] → [Component B]**: [how/why they connect]
+- **Portable**: [what survives platform changes]
+- **Platform-specific**: [what needs replacement on a different system]
 
 ## 6. Signals                             [STANDARD+]
 Suggestions for the receiving system to evaluate.
@@ -392,7 +410,7 @@ Any archetype can carry audience-targeting attributes — who sees it, what's re
 
 **Load an existing capsule:**
 ```
-/capsule load ~/ryos/packages/ryos-work-dispatch-capsule.md
+/capsule load packages/work-dispatch-capsule.md
 ```
 
 **Bare invocation (guided):**
@@ -404,9 +422,9 @@ Any archetype can carry audience-targeting attributes — who sees it, what's re
 
 Works with other ryOS skills:
 - **Input from**: Any session context, `/update-from-session` learnings, skill definitions
-- **Output to**: `~/ryos/packages/` directory, receiving systems via load mode
+- **Output to**: Resolved output directory (see Phase 6), receiving systems via load mode
 - **Related**: `/projector` (sub-skill principles for Deep tier packaging)
 
 ## Output Location
 
-Capsules are saved to `~/ryos/packages/[slug]-capsule.md` by default.
+Capsules are saved to `{output_dir}/[slug]-capsule.md`. See Phase 6 for resolution logic.
